@@ -2,18 +2,35 @@
 woman=imread('mujer.jpg');
 figure,subplot(3,2,1),subimage(woman),title('Original'),subplot(3,2,2),imhist(woman);
 
+
+%%%%%%%%%%%%%%%%%%%%
 %add and substract
 womanAdd=woman+100;
 subplot(3,2,3),subimage(womanAdd),title('Add'), subplot(3,2,4),imhist(womanAdd);
 womanSubstract=woman-100;
 subplot(3,2,5),subimage(womanSubstract),title('Substract'), subplot(3,2,6),imhist(womanSubstract);
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Multiplication and division
 Imul=woman*1.5;
 Idiv=woman/2;
 figure,subplot(3,2,1),subimage(woman),title('Original'),subplot(3,2,2),imhist(woman);
 subplot(3,2,3),subimage(Imul),title('Multiplication'), subplot(3,2,4),imhist(Imul);
 subplot(3,2,5),subimage(Idiv),title('Division'), subplot(3,2,6),imhist(Idiv);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%imadjust with strechlim
+
+%stretchlim(woman,TOL) devuelve un par de valores de gris que pueden ser usados
+%para imadjust para incrementar el contraste de la image. Si TOL no se da
+%se supone que es [0,01 0.99] saturando un 2%
+J=imadjust(woman,stretchlim(woman),[]);
+figure,subplot(1,2,1),imshow(woman),subplot(1,2,2),imshow(J);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%imadjust for gamma correction
 
 %Stretching: -->imadjust
 %   *Los valores inferiores a un cierto umbral se anulan
@@ -31,18 +48,36 @@ subplot(3,2,5),subimage(Idiv),title('Division'), subplot(3,2,6),imhist(Idiv);
 %     HIGH_OUT] defaults to [0 1].
 J=imadjust(woman);
 K = imadjust(woman,[0.3 0.7],[]); %los valores entre 0.3-0.7 se mapea a 0-1
-figure,subplot(2,3,1),imshow(woman),,title('Original'),subplot(2,3,2),...
+figure,subplot(2,3,1),imshow(woman),title('Original'),subplot(2,3,2),...
 imshow(J),title('Adjust'),subplot(2,3,3), imshow(K),title('Adjust 0.3-0.7'),...
 subplot(2,3,4),imhist(woman),subplot(2,3,5),imhist(J),subplot(2,3,6),imhist(K);
 
 
-%stretchlim(woman,TOL) devuelve un par de valores de gris que pueden ser usados
-%para imadjust para incrementar el contraste de la image. Si TOL no se da
-%se supone que es [0,01 0.99] saturando un 2%
-J=imadjust(woman,stretchlim(woman),[]);
-figure,subplot(1,2,1),imshow(woman),subplot(1,2,2),imshow(J);
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%imadjust for substraction (-100)
+
+substractionRatio = 100/255;
+K = imadjust(woman,[substractionRatio 1],[0 1-substractionRatio]);
+figure,subplot(2,2,1),imshow(woman),title('Original'),...
+    subplot(2,2,2), imshow(K),title('Substraction'),...
+    subplot(2,2,3),imhist(woman),subplot(2,2,4),imhist(K);
 
 
+%%%%%%%%%%%%%%%%%%%%%
+%Image equalization
+
+%ECUALIZAR-->histeq
+%q=histeq(b) se devuelve la imagen con el histograma equalizado
+Ieq=histeq(woman);
+figure,subplot(2,2,1),imshow(woman),subplot(2,2,2),imhist(woman);
+subplot(2,2,3),imshow(Ieq),subplot(2,2,4),imhist(Ieq);
+
+
+%%%%%%%%%%%%%%%%%%%
+%COLOR IMAGES
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 
 %Explicación de las funciones de transferencia:
 %Ejex los niveles actuales de la imagen Ejey los niveles del resultado.
