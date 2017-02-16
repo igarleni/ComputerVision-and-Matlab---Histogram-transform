@@ -75,228 +75,77 @@ subplot(2,2,3),imshow(Ieq),subplot(2,2,4),imhist(Ieq);
 
 %%%%%%%%%%%%%%%%%%%
 %COLOR IMAGES
+dance = imread('danza.ppm');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+%%%%%%%%%%%%%%%
+%Equalize RGB
+equ=cat(3,histeq(dance(:,:,1)),histeq(dance(:,:,2)),histeq(dance(:,:,3)));
+%histograma de equ
+f=figure(2); set(f,'Name','Equalized image');
+subplot(3,3,1);imshow(dance),title('original RGB');
+subplot(3,3,2);imshow(equ),title('Ecualized');
+subplot(3,3,4);imshow(equ(:,:,1)),title('Red');
+subplot(3,3,5);imshow(equ(:,:,2)),title('Green');
+subplot(3,3,6);imshow(equ(:,:,3)),title('Blue');
+subplot(3,3,7);imhist(equ(:,:,1)),title('Hist Red');
+subplot(3,3,8);imhist(equ(:,:,2)),title('Hist Green');
+subplot(3,3,9);imhist(equ(:,:,3)),title('Hist Blue');
 
-%Explicación de las funciones de transferencia:
-%Ejex los niveles actuales de la imagen Ejey los niveles del resultado.
-%plot que resultado cuando al ejex se le aplica una funcion determinada
-
-%Ejemplo de funciones de transferencia
-
-x=[0:255];
-identidad=x;
-figure,subplot(2,3,1),plot(x,identidad),title('Identidad');
-
-negativo=255-x;
-subplot(2,3,2),plot(x,negativo),title('Negativo');
-
-B=40;
-suma_cte=x+B;
-subplot(2,3,3),plot(x,suma_cte),title('x+B');
-k=1;
-for A=1.5:0.5:3
-    mask1=(x*A>=0 & x*A<256)
-    prod(k,:)=x*A.*mask1;
-    mask2=(x*A>=256)
-    prod(k,:)=255*mask2+prod(k,:).*(1-mask2); %truncar a 255 cuando se sale
-    
-    mask1=(x/A>=0 & x/A<256)
-    mask2=(x/A>=256);
-    div(k,:)=(x/A.*mask1).*(1-mask2)+255*mask2;
-    
-    k=k+1;
-end
-subplot(2,3,4),plot(x,prod,'--rs','LineWidth',1,...
-                       'MarkerEdgeColor','k',...
-                       'MarkerFaceColor','g',...
-                       'MarkerSize',2),title('x^*A');
-                   
- 
- subplot(2,3,5),plot(x,div,'--rs','LineWidth',1,...
-                       'MarkerEdgeColor','k',...
-                       'MarkerFaceColor','g',...
-                       'MarkerSize',2),title('x/A');
-                                     
+%%%%%%%%%%%%%%%
+%Equalize HSV
+imghsv=rgb2hsv(dance);
+equ2=hsv2rgb(cat(3,histeq(imghsv(:,:,1)),histeq(imghsv(:,:,2)),histeq(imghsv(:,:,3) )));
+f=figure(5); set(f,'Name','Equalized image');
+subplot(3,3,1);imshow(imghsv),title('original HSV');
+subplot(3,3,2);imshow(equ2),title('Ecualized');
+subplot(3,3,4);imshow(equ2(:,:,1)),title('Red');
+subplot(3,3,5);imshow(equ2(:,:,2)),title('Green');
+subplot(3,3,6);imshow(equ2(:,:,3)),title('Blue');
+subplot(3,3,7);imhist(equ2(:,:,1)),title('Hist Red');
+subplot(3,3,8);imhist(equ2(:,:,2)),title('Hist Green');
+subplot(3,3,9);imhist(equ2(:,:,3)),title('Hist Blue');
 
 
- dif_cte=x-B;
- mask=(dif_cte<0);
- dif_cte=(mask)*0+(1-mask).*dif_cte;
- subplot(2,3,6),plot(x,dif_cte),title('x-B');
- 
-
- 
-%Corrección gamma
-woman=imread('mujer.jpg');
-palfa = 0.01;
+%%%%%%%%%%
+%Imadjust for transfer function with Y = 0.75
+field = imread('campo.ppm');
+fieldGray = rgb2gray(field);
+mini = 110/255;
+maxi = 190/255;
+fieldAdj = imadjust(fieldGray,[mini maxi],[]);
+palfa = 0.75;
 c=1;
-Id=im2double(woman);
-Ig1=c*(Id.^palfa)
+Id=im2double(fieldGray);
+Ig1=c*(Id.^palfa);
 a=255/(max(max(Ig1))-min(min(Ig1)));
 b=255-a*max(max(Ig1));
 Iu8=uint8(a*Ig1+b);
 Itrun= im2uint8(Ig1);
-%si mirais el histograma de imhist solamente vereis que tiene solamente 2
-%bin y por lo tanto contabiliza 0 o 1
 figure,subplot(2,2,1),imshow(Ig1,[]),subplot(2,2,2),imhist(Iu8),...
   subplot(2,2,3),imshow(Itrun),subplot(2,2,4),imhist(Itrun);
 
-%transformacion logaritmica 
-Ilog=(log(double(woman)+1));
-a=255/(max(max(Ilog))-min(min(Ilog)));
-b=255-a*max(max(Ilog));
-Iu8=uint8(a*Ilog+b);
-
-figure,subplot(2,2,1),imshow(Ilog,[]),title('Log'),subplot(2,2,2),imhist(Iu8),...
-subplot(2,2,3),imshow(woman,[]),title('Original'),subplot(2,2,4),imhist(woman),title('Histograma Original');
-
-
-%transformacion exponencial
-close all;
-Iexp=exp(im2double(woman));
-a=255/(max(max(Iexp))-min(min(Iexp)));
-b=255-a*max(max(Iexp));
-Iu8=uint8(a*Iexp+b);
-
-figure,subplot(2,2,1),imshow(Iexp,[]),title('Exp'),subplot(2,2,2),imhist(Iu8),...
-subplot(2,2,3),imshow(woman,[]),title('Original'),subplot(2,2,4),imhist(woman),title('Histograma Original');
+%%%%%%%%%%%%%%%%%%%
+%adapthisteq function
+womanAdapt = adapthisteq(woman);
+figure,subplot(2,2,1),imshow(woman),title('Original'),...
+    subplot(2,2,2),imshow(womanAdapt), title('adaptHisteq image'),...
+    subplot(2,2,3),imhist(woman), ...
+    subplot(2,2,4),imhist(womanAdapt);
 
 
-
-
-
-Binaria=imadjust(woman,[0 1],[1 0]); %B=imcomplement(woman)
-figure,imshow(Binaria)
-
-%con imagenes de color
-A=imread('patio_leones.ppm');
-A2 = imadjust(A,[.2 .2 .2; 1 1 1],[]);
-figure, subplot(2,4,1),imshow(A), subplot(2,4,2),imhist(A(:,:,1)),title('Rojo'), subplot(2,4,3),imhist(A(:,:,2)),title('Verde'),subplot(2,4,4),imhist(A(:,:,3)),title('Azul');
-subplot(2,4,5),imshow(A2), subplot(2,4,6),imhist(A2(:,:,1)), subplot(2,4,7),imhist(A2(:,:,2)),subplot(2,4,8),imhist(A2(:,:,3));
-
-
-%ECUALIZAR-->histeq
-%q=histeq(b) se devuelve la imagen con el histograma equalizado
-close all;
-woman=imread('mujer.jpg');
-Ieq=histeq(woman);
-figure,subplot(2,2,1),imshow(woman),subplot(2,2,2),imhist(woman);
-subplot(2,2,3),imshow(Ieq),subplot(2,2,4),imhist(Ieq);
-
-%existen diferentes formas para llamar a la ecaualizacion del histograma 
-%pero una interesantes es:
-[Ieq2 T]=histeq(woman);
-Iotra=T(woman);
-figure,imshow(Iotra);
-figure, imshow(Ieq2);
-%error de la imagen
-mse(Iotra-im2double(Ieq2))
-
-
-%Ecualizacion de Imagenes a color 
-
-%Histograma de las bandas
-close all;
-imgrgb=imread('patio_leones.ppm');
-f=figure(1); set(f,'Name','Imagen original');
-subplot(3,3,1);imshow(imgrgb),title('RGB');
-subplot(3,3,4);imshow(imgrgb(:,:,1)),title('Rojo');
-subplot(3,3,5);imshow(imgrgb(:,:,2)),title('Verde');
-subplot(3,3,6);imshow(imgrgb(:,:,2)),title('Azul');
-subplot(3,3,7);imhist(imgrgb(:,:,1)),title('Hist Rojo');
-subplot(3,3,8);imhist(imgrgb(:,:,2)),title('Hist Verde');
-subplot(3,3,9);imhist(imgrgb(:,:,2)),title('Hist Azul');
-
-
-equ=cat(3,histeq(imgrgb(:,:,1)),histeq(imgrgb(:,:,2)),histeq(imgrgb(:,:,3)));
-%histograma de equ
-f=figure(2); set(f,'Name','Imagen Ecualizada');
-subplot(3,3,1);imshow(equ),title('Ecualizada');
-subplot(3,3,4);imshow(equ(:,:,1)),title('Rojo');
-subplot(3,3,5);imshow(equ(:,:,2)),title('Verde');
-subplot(3,3,6);imshow(equ(:,:,2)),title('Azul');
-subplot(3,3,7);imhist(equ(:,:,1)),title('Hist Rojo');
-subplot(3,3,8);imhist(equ(:,:,2)),title('Hist Verde');
-subplot(3,3,9);imhist(equ(:,:,2)),title('Hist Azul');
-
-
-%ahora en el dominio hsv
-imghsv=rgb2hsv(imgrgb);
-f=figure(4),set(f,'Name','Histogramas HSV');
-subplot(1,3,1),imhist(imghsv(:,:,1));
-subplot(1,3,2),imhist(imghsv(:,:,2));
-subplot(1,3,3),imhist(imghsv(:,:,3));
-
-
-equ2=hsv2rgb(cat(3,histeq(imghsv(:,:,1)),histeq(imghsv(:,:,2)),histeq(imghsv(:,:,3) )));
-f=figure(5); set(f,'Name','Imagen Ecualizada HSV');
-subplot(3,3,1);imshow(equ2),title('Ecualizada HSV');
-subplot(3,3,4);imshow(equ2(:,:,1)),title('Rojo');
-subplot(3,3,5);imshow(equ2(:,:,2)),title('Verde');
-subplot(3,3,6);imshow(equ2(:,:,2)),title('Azul');
-subplot(3,3,7);imhist(equ2(:,:,1)),title('Hist Rojo');
-subplot(3,3,8);imhist(equ2(:,:,2)),title('Hist Verde');
-subplot(3,3,9);imhist(equ2(:,:,3)),title('Hist Azul');
-
-
-%Ecualizar solamente V
-
-equ3=hsv2rgb(cat(3,(imghsv(:,:,1)),imghsv(:,:,2),histeq(imghsv(:,:,3) )));
-f=figure(6); set(f,'Name','Imagen Ecualizada HSV solo V');
-subplot(3,3,1);imshow(equ3),title('Ecualizada HSV solo V');
-subplot(3,3,4);imshow(equ3(:,:,1)),title('Rojo');
-subplot(3,3,5);imshow(equ3(:,:,2)),title('Verde');
-subplot(3,3,6);imshow(equ3(:,:,2)),title('Azul');
-subplot(3,3,7);imhist(equ3(:,:,1)),title('Hist Rojo');
-subplot(3,3,8);imhist(equ3(:,:,2)),title('Hist Verde');
-subplot(3,3,9);imhist(equ3(:,:,3)),title('Hist Azul');
-
-
-
-
-
-%adapthisteq: es parecido al histeq, pero a diferencia mejora el contraste
-%operando sobre pequeñas regiones. 
-%Parametros posibles 
-
-% 'NumTiles'     Two-element vector of positive integers: [M N].
-%                    [M N] specifies the number of tile rows and
-%                    columns.  Both M and N must be at least 2. 
-%                    The total number of image tiles is equal to M*N.
-%  
-%                    Default: [8 8].
-% 
-%  'ClipLimit'    Real scalar from 0 to 1.
-%                    'ClipLimit' limits contrast enhancement. Higher numbers 
-%                    result in more contrast. 
-%         
-%                    Default: 0.01.
-%  'Range'        One of the strings: 'original' or 'full'.
-%                    Controls the range of the output image data. If 'Range' 
-%                    is set to 'original', the range is limited to 
-%                    [min(woman(:)) max(woman(:))]. Otherwise, by default, or when 
-%                    'Range' is set to 'full', the full range of the output 
-%                    image class is used (e.g. [0 255] for uint8).
-%  
-%                    Default: 'full'.
-%  'Distribution' Distribution can be one of three strings: 'uniform',
-%                    'rayleigh', 'exponential'.
-%                    Sets desired histogram shape for the image tiles, by 
-%                    specifying a distribution type.
-%  
-%                    Default: 'uniform'.
-%  'Alpha'        Nonnegative real scalar.
-%                    'Alpha' is a distribution parameter, which can be supplied 
-%                    when 'Dist' is set to either 'rayleigh' or 'exponential'.
-%  
-%                    Default: 0.4.
-J=adapthisteq(woman);
-J2=adapthisteq(woman,'clipLimit',0.005,'Distribution','uniform');
-J3=adapthisteq(woman,'clipLimit',0.005,'Distribution','exponential');
-J4=adapthisteq(woman,'clipLimit',0.005,'Distribution','rayleigh');
-figure,imshow(J);
-figure,imshow(J2);figure,imshow(J3);figure,imshow(J4);
-
-    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Combining techniques to improve an image
+landscape = imread('paisaje.jpg');
+equ=cat(3,histeq(landscape(:,:,1)),histeq(landscape(:,:,2)),histeq(landscape(:,:,3)));
+figure,subplot(2,3,1),imshow(landscape),title('Original'),...
+    subplot(3,3,3),imshow(equ), title('Histeq image'),...
+    subplot(3,3,4);imhist(landscape(:,:,1)),title('Red'),...
+    subplot(3,3,5);imhist(landscape(:,:,2)),title('Green'),...
+    subplot(3,3,6);imhist(landscape(:,:,3)),title('Blue'),...
+    subplot(3,3,7);imhist(equ(:,:,1)),title('Hist Red'),...
+    subplot(3,3,8);imhist(equ(:,:,2)),title('Hist Green'),...
+    subplot(3,3,9);imhist(equ(:,:,3)),title('Hist Blue');
+equSum = imadjust(equ,[0.3 1],[]);
+figure,subplot(1,3,1),imshow(landscape),title('Original'),...
+    subplot(1,3,2),imshow(equ), title('Histeq image'),...
+    subplot(1,3,3),imshow(equSum), title('Final image');

@@ -1,8 +1,8 @@
-%
-woman=imread('mujer.jpg');
+% PRACTICA 3: TECNICAS PARA MEJORAR EL HISTOGRAMA Y MEJORAR EL CONTRASTE
+%Efectos del histograma con trasnformaciones aritmeticas
+I=imread('mujer.jpg');
 figure,subplot(3,2,1),subimage(I),title('Original'),subplot(3,2,2),imhist(I);
-
-%Addition and substraction
+%Operaciones suma y resta
 Isuma=I+100;
 subplot(3,2,3),subimage(Isuma),title('Suma'), subplot(3,2,4),imhist(Isuma);
 Iresta=I-100;
