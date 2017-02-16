@@ -1,47 +1,22 @@
 %
 woman=imread('mujer.jpg');
-figure,subplot(3,2,1),subimage(woman),title('Original'),subplot(3,2,2),imhist(woman);
+figure,subplot(3,2,1),subimage(I),title('Original'),subplot(3,2,2),imhist(I);
 
-%add and substract
-womanAdd=woman+100;
-subplot(3,2,3),subimage(womanAdd),title('Add'), subplot(3,2,4),imhist(womanAdd);
-womanSubstract=woman-100;
-subplot(3,2,5),subimage(womanSubstract),title('Substract'), subplot(3,2,6),imhist(womanSubstract);
+%Addition and substraction
+Isuma=I+100;
+subplot(3,2,3),subimage(Isuma),title('Suma'), subplot(3,2,4),imhist(Isuma);
+Iresta=I-100;
+subplot(3,2,5),subimage(Iresta),title('Resta'), subplot(3,2,6),imhist(Iresta);
 
-%Multiplication and division
-Imul=woman*1.5;
-Idiv=woman/2;
-figure,subplot(3,2,1),subimage(woman),title('Original'),subplot(3,2,2),imhist(woman);
-subplot(3,2,3),subimage(Imul),title('Multiplication'), subplot(3,2,4),imhist(Imul);
+%Operaciones multiplicacion y division
+%Con la multiplicacion se ve un estiramiento (si el factor es mayor que
+%uno) o aplastamiento si el factor es menor que uno o la division
+Ipro=I*1.5;
+Idiv=I/2;
+
+figure,subplot(3,2,1),subimage(I),title('Original'),subplot(3,2,2),imhist(I);
+subplot(3,2,3),subimage(Ipro),title('Producto'), subplot(3,2,4),imhist(Ipro);
 subplot(3,2,5),subimage(Idiv),title('Division'), subplot(3,2,6),imhist(Idiv);
-
-%Stretching: -->imadjust
-%   *Los valores inferiores a un cierto umbral se anulan
-%   *Los superiores a otro umbral se saturan al maximo
-%   *Los valores intermedios se transforman con alguna funcion
-
-%imadjust(woman) mapea los valores de manera que satura %1
-%  IMADJUST(woman,[LOW_IN; HIGH_IN],[LOW_OUT; HIGH_OUT]) maps the values
-%     in intensity image woman to new values in J such that values between LOW_IN
-%     and HIGH_IN map to values between LOW_OUT and HIGH_OUT. Values below
-%     LOW_IN and above HIGH_IN are clipped; that is, values below LOW_IN map
-%     to LOW_OUT, and those above HIGH_IN map to HIGH_OUT. You can use an
-%     empty matrix ([]) for [LOW_IN; HIGH_IN] or for [LOW_OUT; HIGH_OUT] to
-%     specify the default of [0 1]. If you omit the argument, [LOW_OUT;
-%     HIGH_OUT] defaults to [0 1].
-J=imadjust(woman);
-K = imadjust(woman,[0.3 0.7],[]); %los valores entre 0.3-0.7 se mapea a 0-1
-figure,subplot(2,3,1),imshow(woman),,title('Original'),subplot(2,3,2),...
-imshow(J),title('Adjust'),subplot(2,3,3), imshow(K),title('Adjust 0.3-0.7'),...
-subplot(2,3,4),imhist(woman),subplot(2,3,5),imhist(J),subplot(2,3,6),imhist(K);
-
-
-%stretchlim(woman,TOL) devuelve un par de valores de gris que pueden ser usados
-%para imadjust para incrementar el contraste de la image. Si TOL no se da
-%se supone que es [0,01 0.99] saturando un 2%
-J=imadjust(woman,stretchlim(woman),[]);
-figure,subplot(1,2,1),imshow(woman),subplot(1,2,2),imshow(J);
-
 
 
 %Explicación de las funciones de transferencia:
@@ -94,10 +69,10 @@ subplot(2,3,4),plot(x,prod,'--rs','LineWidth',1,...
 
  
 %Corrección gamma
-woman=imread('mujer.jpg');
+I=imread('mujer.jpg');
 palfa = 0.01;
 c=1;
-Id=im2double(woman);
+Id=im2double(I);
 Ig1=c*(Id.^palfa)
 a=255/(max(max(Ig1))-min(min(Ig1)));
 b=255-a*max(max(Ig1));
@@ -109,30 +84,49 @@ figure,subplot(2,2,1),imshow(Ig1,[]),subplot(2,2,2),imhist(Iu8),...
   subplot(2,2,3),imshow(Itrun),subplot(2,2,4),imhist(Itrun);
 
 %transformacion logaritmica 
-Ilog=(log(double(woman)+1));
+Ilog=(log(double(I)+1));
 a=255/(max(max(Ilog))-min(min(Ilog)));
 b=255-a*max(max(Ilog));
 Iu8=uint8(a*Ilog+b);
 
 figure,subplot(2,2,1),imshow(Ilog,[]),title('Log'),subplot(2,2,2),imhist(Iu8),...
-subplot(2,2,3),imshow(woman,[]),title('Original'),subplot(2,2,4),imhist(woman),title('Histograma Original');
+subplot(2,2,3),imshow(I,[]),title('Original'),subplot(2,2,4),imhist(I),title('Histograma Original');
 
 
 %transformacion exponencial
 close all;
-Iexp=exp(im2double(woman));
+Iexp=exp(im2double(I));
 a=255/(max(max(Iexp))-min(min(Iexp)));
 b=255-a*max(max(Iexp));
 Iu8=uint8(a*Iexp+b);
 
 figure,subplot(2,2,1),imshow(Iexp,[]),title('Exp'),subplot(2,2,2),imhist(Iu8),...
-subplot(2,2,3),imshow(woman,[]),title('Original'),subplot(2,2,4),imhist(woman),title('Histograma Original');
+subplot(2,2,3),imshow(I,[]),title('Original'),subplot(2,2,4),imhist(I),title('Histograma Original');
 
 
+%Stretching (estiramiento): -->imadjust
+%   *Los valores inferiores a un cierto umbral se anulan
+%   *Los superiores a otro umbral se saturan al máximo
+%   *Los valores intermedios se transforman con alguna función
 
+%imadjust(I) mapea los valores de manera que satura %1
+%  IMADJUST(I,[LOW_IN; HIGH_IN],[LOW_OUT; HIGH_OUT]) maps the values
+%     in intensity image I to new values in J such that values between LOW_IN
+%     and HIGH_IN map to values between LOW_OUT and HIGH_OUT. Values below
+%     LOW_IN and above HIGH_IN are clipped; that is, values below LOW_IN map
+%     to LOW_OUT, and those above HIGH_IN map to HIGH_OUT. You can use an
+%     empty matrix ([]) for [LOW_IN; HIGH_IN] or for [LOW_OUT; HIGH_OUT] to
+%     specify the default of [0 1]. If you omit the argument, [LOW_OUT;
+%     HIGH_OUT] defaults to [0 1].
+close all;
+I=imread('mujer.jpg');
+J=imadjust(I);
+K = imadjust(I,[0.3 0.7],[]); %los valores entre 0.3-0.7 se mapea a 0-1
+figure,subplot(2,3,1),imshow(I),,title('Original'),subplot(2,3,2),...
+imshow(J),title('Ajuste'),subplot(2,3,3), imshow(K),title('Ajuste 0.3-0.7'),...
+subplot(2,3,4),imhist(I),subplot(2,3,5),imhist(J),subplot(2,3,6),imhist(K);
 
-
-Binaria=imadjust(woman,[0 1],[1 0]); %B=imcomplement(woman)
+Binaria=imadjust(I,[0 1],[1 0]); %B=imcomplement(I)
 figure,imshow(Binaria)
 
 %con imagenes de color
@@ -145,15 +139,15 @@ subplot(2,4,5),imshow(A2), subplot(2,4,6),imhist(A2(:,:,1)), subplot(2,4,7),imhi
 %ECUALIZAR-->histeq
 %q=histeq(b) se devuelve la imagen con el histograma equalizado
 close all;
-woman=imread('mujer.jpg');
-Ieq=histeq(woman);
-figure,subplot(2,2,1),imshow(woman),subplot(2,2,2),imhist(woman);
+I=imread('mujer.jpg');
+Ieq=histeq(I);
+figure,subplot(2,2,1),imshow(I),subplot(2,2,2),imhist(I);
 subplot(2,2,3),imshow(Ieq),subplot(2,2,4),imhist(Ieq);
 
 %existen diferentes formas para llamar a la ecaualizacion del histograma 
 %pero una interesantes es:
-[Ieq2 T]=histeq(woman);
-Iotra=T(woman);
+[Ieq2 T]=histeq(I);
+Iotra=T(I);
 figure,imshow(Iotra);
 figure, imshow(Ieq2);
 %error de la imagen
@@ -218,7 +212,12 @@ subplot(3,3,7);imhist(equ3(:,:,1)),title('Hist Rojo');
 subplot(3,3,8);imhist(equ3(:,:,2)),title('Hist Verde');
 subplot(3,3,9);imhist(equ3(:,:,3)),title('Hist Azul');
 
-
+%stretchlim(I,TOL) devuelve un par de valores de gris que pueden ser usados
+%para imadjust para incrementar el contraste de la image. Si TOL no se da
+%se supone que es [0,01 0.99] saturando un 2%
+I=imread('mujer.jpg');
+J=imadjust(I,stretchlim(I),[]);
+figure,subplot(1,2,1),imshow(I),subplot(1,2,2),imshow(J);
 
 
 
@@ -241,7 +240,7 @@ subplot(3,3,9);imhist(equ3(:,:,3)),title('Hist Azul');
 %  'Range'        One of the strings: 'original' or 'full'.
 %                    Controls the range of the output image data. If 'Range' 
 %                    is set to 'original', the range is limited to 
-%                    [min(woman(:)) max(woman(:))]. Otherwise, by default, or when 
+%                    [min(I(:)) max(I(:))]. Otherwise, by default, or when 
 %                    'Range' is set to 'full', the full range of the output 
 %                    image class is used (e.g. [0 255] for uint8).
 %  
@@ -257,10 +256,10 @@ subplot(3,3,9);imhist(equ3(:,:,3)),title('Hist Azul');
 %                    when 'Dist' is set to either 'rayleigh' or 'exponential'.
 %  
 %                    Default: 0.4.
-J=adapthisteq(woman);
-J2=adapthisteq(woman,'clipLimit',0.005,'Distribution','uniform');
-J3=adapthisteq(woman,'clipLimit',0.005,'Distribution','exponential');
-J4=adapthisteq(woman,'clipLimit',0.005,'Distribution','rayleigh');
+J=adapthisteq(I);
+J2=adapthisteq(I,'clipLimit',0.005,'Distribution','uniform');
+J3=adapthisteq(I,'clipLimit',0.005,'Distribution','exponential');
+J4=adapthisteq(I,'clipLimit',0.005,'Distribution','rayleigh');
 figure,imshow(J);
 figure,imshow(J2);figure,imshow(J3);figure,imshow(J4);
 
